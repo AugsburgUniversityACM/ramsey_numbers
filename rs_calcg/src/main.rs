@@ -1,3 +1,9 @@
+mod kgraphrbe;
+mod brute_force;
+
+pub use kgraphrbe::KGraphRBE;
+pub use brute_force::brute_force;
+
 fn main() {
-    println!("Hello, world!");
+    brute_force();
 }

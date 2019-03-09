@@ -1,4 +1,4 @@
-# ramsey_numbers
+# Ramsey Numbers
 Calculations of Ramsey Numbers using parallel computing and SIMD.
 
 ## Setting Up Your Python Virtual Environment
@@ -17,3 +17,20 @@ and you can deactivate it using
 deactivate
 ```
 This virtual environment is not added to your commits.
+
+## Graph Format
+The graph format stores a list of colors, exported from rs\_calcg and imported in py\_renderg.
+The file is a bunch of characters in a row.  For a K4 complete graph with vertices A, B, C and D.
+R for RED and B for BLUE.  The order is specified below.
+```
+AB
+AC
+AD
+BC
+BD
+CD
+```
+Example file for K4:
+```
+RRBBRB
+```
