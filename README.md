@@ -23,12 +23,12 @@ The graph format stores a list of colors, exported from rs\_calcg and imported i
 The file is a bunch of characters in a row.  For a K4 complete graph with vertices A, B, C and D.
 R for RED and B for BLUE.  The order is specified below.
 ```
-AB
-AC
-AD
-BC
-BD
-CD
+BA // Add 2nd Vertex (1 edge)
+CA // Add 3rd Vertex (2 edges)
+CB
+DA // Add 4th Vertex (3 edges)
+DB
+DC
 ```
 Example file for K4:
 ```
