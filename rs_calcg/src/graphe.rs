@@ -1,20 +1,22 @@
+use crate::*;
+
 /// The maximum number of edges.
-pub const MAX_KGRAPHRBE_SIZE: usize = 64 * 32;
+pub const MAX_GRAPHE_SIZE: usize = 64 * 32;
 
 /// A complete graph colored with red and blue edges.
 #[derive(Clone)]
-pub struct KGraphRBE {
+pub struct GraphE {
     // Number of edges in the graph.
     edges: usize,
-    // Bitstring of edge colors.
+    // Bitstring of relations between vertices.
     colors: [u64; 32],
 }
 
-impl KGraphRBE {
+impl GraphE {
     /// Create a new Red/Blue complete graph.
     #[inline(always)]
     pub fn new(edges: usize) -> Self {
-        KGraphRBE {
+        GraphE {
             edges,
             colors: [0; 32],
         }
@@ -22,7 +24,7 @@ impl KGraphRBE {
 
     /// Set the color for an edge to blue (0).
     #[inline(always)]
-    pub fn setb(&mut self, index: usize) {
+    pub fn set_zero(&mut self, index: usize) {
         debug_assert!(index < self.edges);
 
         let i = index / 64;
@@ -35,7 +37,7 @@ impl KGraphRBE {
 
     /// Set the color for an edge to red (1).
     #[inline(always)]
-    pub fn setr(&mut self, index: usize) {
+    pub fn set_one(&mut self, index: usize) {
         debug_assert!(index < self.edges);
 
         let i = index / 64;
@@ -58,9 +60,17 @@ impl KGraphRBE {
         (self.colors[i] & (1 << j)) != 0
     }
 
+    /// Get the number of edges.
     #[inline(always)]
     pub fn n_edges(&self) -> usize {
         self.edges
+    }
+
+    /// Get the number of vertices.
+    #[inline(always)]
+    pub fn n_vertices(&self) -> usize {
+        assert!(is_triangular(self.edges));
+        tlrt(self.edges)
     }
 
     #[inline(always)]
@@ -69,10 +79,10 @@ impl KGraphRBE {
 
         loop {
             if self.get(digit) {
-                self.setb(digit);
+                self.set_zero(digit);
                 digit += 1;
             } else {
-                self.setr(digit);
+                self.set_one(digit);
                 break;
             }
         }
@@ -88,8 +98,8 @@ mod tests {
 
     #[test]
     fn graph_consistency() {
-        let mut kgraphrbe = KGraphRBE::new(MAX_KGRAPHRBE_SIZE);
-        for i in 0..MAX_KGRAPHRBE_SIZE {
+        let mut kgraphrbe = GraphE::new(MAX_GRAPHE_SIZE);
+        for i in 0..MAX_GRAPHE_SIZE {
             dbg!(i);
 
             assert_eq!(kgraphrbe.get(i), false);

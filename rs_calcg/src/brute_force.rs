@@ -1,8 +1,8 @@
-use crate::KGraphRBE;
-use crate::kgraphrbe::MAX_KGRAPHRBE_SIZE;
+use crate::GraphE;
+use crate::graphe::MAX_GRAPHE_SIZE;
 
-/// Find the 2 biggest cliques in a KGraphRBE.
-fn cliques(n_vertices: usize, kgraphrbe: KGraphRBE) -> (usize, usize) {
+/// Find the 2 biggest cliques in a GraphE.
+fn cliques(n_vertices: usize, kgraphrbe: GraphE) -> (usize, usize) {
     // Look for first edge's (AB) color (treat this as RED).
     let edge = kgraphrbe.get(0);
     let mut r = 1;
@@ -10,7 +10,10 @@ fn cliques(n_vertices: usize, kgraphrbe: KGraphRBE) -> (usize, usize) {
 
     // Start at 2 (Vertex C)
     for i in 2..n_vertices {
-        kgraphrbe.get(0);
+        let color = kgraphrbe.get(i);
+
+        if color == edge {
+        }
     }
 
     // Return smaller clique first, then the bigger clique.
@@ -25,7 +28,7 @@ fn cliques(n_vertices: usize, kgraphrbe: KGraphRBE) -> (usize, usize) {
 pub fn calculate(n_vertices: usize, n_edges: usize) -> (usize, usize) {
     println!("Vertices: {}, Edges: {}", n_vertices, n_edges);
 
-    let mut kgraphrbe = KGraphRBE::new(n_edges);
+    let mut kgraphrbe = GraphE::new(n_edges);
     let mut minb = std::usize::MAX; // Big Clique
     let mut minr = std::usize::MAX; // Small Clique
 
@@ -49,7 +52,7 @@ pub fn brute_force() {
     loop {
         let n_edges = (n_vertices * (n_vertices - 1)) >> 1;
 
-        if n_edges > MAX_KGRAPHRBE_SIZE {
+        if n_edges > MAX_GRAPHE_SIZE {
             break;
         }
 
