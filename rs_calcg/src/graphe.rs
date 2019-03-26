@@ -85,18 +85,20 @@ impl GraphE {
     pub fn increment(&mut self) -> bool {
         let mut digit = 0;
 
+        // Go through all of the edges.
         loop {
             if self.get(digit) {
                 self.set_zero(digit);
                 digit += 1;
+                // Can no longer get or set, so we've hit the last iteration.
+                if digit == self.n_edges() {
+                    break true;
+                }
             } else {
                 self.set_one(digit);
-                break;
+                break false;
             }
         }
-
-        // TODO: should be >= ?
-        digit > (self.edges >> 1)
     }
 }
 
