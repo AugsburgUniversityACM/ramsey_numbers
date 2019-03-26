@@ -70,9 +70,17 @@ impl GraphE {
     #[inline(always)]
     pub fn n_vertices(&self) -> usize {
         assert!(is_triangular(self.edges));
-        tlrt(self.edges)
+        triangle_root(self.edges)
     }
 
+    /// Get the relation between two vertices.
+    pub fn relation(&self, first: usize, second: usize) -> bool {
+        let index = (triangle_num(second) + first).min(triangle_num(first) + second);
+
+        self.get(index)
+    }
+
+    /// Find the next variation of the graph.
     #[inline(always)]
     pub fn increment(&mut self) -> bool {
         let mut digit = 0;
@@ -98,15 +106,15 @@ mod tests {
 
     #[test]
     fn graph_consistency() {
-        let mut kgraphrbe = GraphE::new(MAX_GRAPHE_SIZE);
+        let mut graphe = GraphE::new(MAX_GRAPHE_SIZE);
         for i in 0..MAX_GRAPHE_SIZE {
             dbg!(i);
 
-            assert_eq!(kgraphrbe.get(i), false);
-            kgraphrbe.setr(i);
-            assert_eq!(kgraphrbe.get(i), true);
-            kgraphrbe.setb(i);
-            assert_eq!(kgraphrbe.get(i), false);
+            assert_eq!(graphe.get(i), false);
+            graphe.set_one(i);
+            assert_eq!(graphe.get(i), true);
+            graphe.set_zero(i);
+            assert_eq!(graphe.get(i), false);
         }
     }
 }
