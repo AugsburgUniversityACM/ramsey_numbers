@@ -1,6 +1,19 @@
 # Ramsey Numbers
 Calculations of Ramsey Numbers using parallel computing and SIMD.
 
+## Running The Rust Code
+In the bash, this runs on a single-processor:
+
+```bash
+cd rs_calcg
+cargo run --release
+```
+to run the unit tests use:
+
+```bash
+cargo test
+```
+
 ## Setting Up Your Python Virtual Environment
 To setup your python virtual environment run the following command
 ```
