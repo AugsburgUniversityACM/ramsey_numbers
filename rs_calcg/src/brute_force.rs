@@ -61,3 +61,24 @@ pub fn brute_force() {
         n_vertices += 1;
     }
 }
+
+
+///caseCheck function to check for the following case...
+///all undirected graphs of order v
+///contain a clique of order m  OR an independent se of order m
+pub fn caseCheck() {
+  getUndirectedGraphs()//should return undirected grapher
+}
+//returns the undirected graph of a g
+//input order of smallest graph
+pub fn getUndirectedGraphs(order v){
+
+}
+//returns true if undirected graph is of order m
+pub fn ContainsOrderMClique(getUndirectedGraph(graph){
+
+}
+//returns true if the undirected graph is an independentSetOfOrderN.
+pub fn isIndependentSetOfOrderN(getUndirectedGraph(graph){
+
+}
