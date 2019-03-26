@@ -2,16 +2,16 @@ use crate::*;
 
 /// A monochromatic clique.
 pub struct Clique {
-    orig_color: bool,
+    color: bool,
     vertices: Vec<usize>,
 }
 
 impl Clique {
-    pub fn new(orig_color: bool, first: usize, second: usize) -> Clique {
+    pub fn new(color: bool, first: usize, second: usize) -> Clique {
         let vertices = vec![first, second];
 
         Clique {
-            orig_color, vertices
+            color, vertices
         }
     }
 }
@@ -36,7 +36,7 @@ impl RamseyCliques {
             // Cycle through the vertices in the clique.  All vertices must be connected with the
             // same color to the new vertex.
             'vertices_in_clique: for vertex in &clique.vertices {
-                if graphe.relation(new_vertex, *vertex) != clique.orig_color {
+                if graphe.relation(new_vertex, *vertex) != clique.color {
                     continue 'cliques;
                 }
             }

@@ -63,10 +63,10 @@ pub fn brute_force() {
 }
 
 
-///caseCheck function to check for the following case...
-///all undirected graphs of order v
-///contain a clique of order m  OR an independent se of order
-///return type boolean
+/*/// caseCheck function to check for the following case...
+/// all undirected graphs of order v
+/// contain a clique of order m  OR an independent se of order
+/// return type boolean
 pub fn caseCheck() {
   boolean = true;
   counter = 0;
@@ -97,4 +97,4 @@ pub fn containsOrderMClique(getUndirectedGraph(graph){
 //returns true if the undirected graph is an independentSetOfOrderN.
 pub fn isIndependentSetOfOrderN(getUndirectedGraph(graph){
 
-}
+}*/
