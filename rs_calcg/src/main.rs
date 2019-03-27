@@ -2,6 +2,7 @@ mod graphe;
 mod brute_force;
 mod cliques;
 mod math;
+mod random_tests;
 
 pub use graphe::GraphE;
 pub use brute_force::brute_force;
