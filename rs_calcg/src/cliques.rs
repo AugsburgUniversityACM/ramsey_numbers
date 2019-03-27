@@ -45,8 +45,25 @@ impl RamseyCliques {
         }
     }
 
-//    /// 
-//    pub fn 
+    /// Find the number of vertices of the two largest monochromatic cliques in the `RamseyCliques`
+    /// struct.
+    pub fn ramsey_max_cliques(&mut self) -> (usize, usize) {
+        let mut max_one = 0;
+        let mut max_zero = 0;
+
+        for clique in &self.cliques {
+            let color = clique.color;
+            let n_vertices = clique.vertices.len();
+
+            if color {
+                max_one = max_one.max(n_vertices);
+            } else {
+                max_zero = max_zero.max(n_vertices);
+            }
+        }
+
+        (max_zero, max_one)
+    }
 }
 
 /// Find the 2 largest monochromatic cliques in a GraphE that are different colors.
@@ -62,6 +79,5 @@ pub fn ramsey_cliques_graphe(graphe: &GraphE) -> (usize, usize) {
         rc.push(graphe, i);
     }
 
-//  rc.ramsey_max_cliques()
-    (1, 1)
+    rc.ramsey_max_cliques()
 }
