@@ -100,6 +100,13 @@ impl GraphE {
             }
         }
     }
+
+    /// Check for cliques of size n.  When using the function, start n at the size of the graph and
+    /// decrease it.
+    #[inline(always)]
+    pub fn find_cliques(&self, n: usize) {
+        
+    }
 }
 
 #[cfg(test)]
