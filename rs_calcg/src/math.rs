@@ -15,5 +15,5 @@ pub fn is_triangular(x: usize) -> bool {
     let y = triangle_root(x);
     let z = triangle_num(y);
 
-    y == z
+    x == z
 }

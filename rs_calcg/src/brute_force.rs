@@ -1,7 +1,8 @@
 use crate::GraphE;
 use crate::graphe::MAX_GRAPHE_SIZE;
+use crate::ramsey_cliques_graphe;
 
-/// Find the 2 biggest cliques in a GraphE.
+/*/// Find the 2 biggest cliques in a GraphE.
 fn cliques(n_vertices: usize, kgraphrbe: GraphE) -> (usize, usize) {
     // Look for first edge's (AB) color (treat this as RED).
     let edge = kgraphrbe.get(0);
@@ -22,7 +23,7 @@ fn cliques(n_vertices: usize, kgraphrbe: GraphE) -> (usize, usize) {
     } else {
         (r, b) // small, big
     }
-}
+}*/
 
 /// Generate differently colored graphs to find cliques in.
 pub fn calculate(n_vertices: usize, n_edges: usize) -> (usize, usize) {
@@ -36,7 +37,7 @@ pub fn calculate(n_vertices: usize, n_edges: usize) -> (usize, usize) {
         if kgraphrbe.increment() {
             break;
         }
-        let (r, b) = cliques(n_vertices, kgraphrbe.clone());
+        let (r, b) = ramsey_cliques_graphe(&kgraphrbe);
         minr = minr.min(r);
         minb = minb.min(b);
     }
