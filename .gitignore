@@ -1,2 +1,4 @@
 **/target
 pyDist
+.idea
+__pycache__
