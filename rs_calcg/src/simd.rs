@@ -33,6 +33,15 @@ pub fn simd_eq(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
     simd_eq_fallback(a, b, v)
 }
 
+pub fn simd_is_zero(a: [u64; 32], v: usize) -> bool {
+    #[cfg(all(any(target_arch="x86", target_arch="x86_64"), feature = "use-simd"))] {
+        if is_x86_feature_detected!("ssse3") {
+            return simd_eq_x86(a, [0; 32], v);
+        }
+    }
+    simd_eq_fallback(a, [0; 32], v)
+}
+
 /// & on X86 SIMD
 fn simd_and_x86(a: [u64; 32], b: [u64; 32], v: usize) -> [u64; 32] {
     unimplemented!();

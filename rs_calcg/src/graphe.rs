@@ -182,22 +182,33 @@ impl GraphE {
         returnv
     }
 
-    /// Check for cliques of size n.  When using the function, start n at the size of the graph and
-    /// decrease it.  `bitstrings` must be a result from `find_possible_cliques()` with the same
-    /// value for `n`.
+    /// Check for cliques of size r and b.  When using the function, start n at the size of the
+    /// graph and decrease it.  `bitstrings` must be a result from `find_possible_cliques()` with
+    /// the same value for `n`.
     #[inline(always)]
-    pub fn find_cliques(&self, bitstrings: &Vec<BitString>, n: usize) {
-        
+    pub fn find_cliques(&self, prcs: &Vec<BitString>, pbcs: &Vec<BitString>) -> bool {
+        let gc = self.colors;
+
+        // Check for RED Cliques of size r.
+        for pc in prcs {
+            let c = simd_and(pc.0, gc, self.edges);
+            if simd_eq(c, pc.0, self.edges) {
+                // We have a RED Clique of 3 Vertices.
+                return true;
+            }
+        }
+
+        for pc in pbcs {
+            let c = simd_and(pc.0, gc, self.edges);
+            if simd_is_zero(c, self.edges) {
+                // We have a BLUE Clique of 3 Vertices.
+                return true;
+            }
+        }
+
+        false
     }
 }
-
-/*fn next(current: &mut [bool]) {
-    let last = current.len() - 1;
-
-    loop {
-        
-    }
-}*/
 
 fn add(current: &mut [bool]) {
     for i in 0..current.len() {
