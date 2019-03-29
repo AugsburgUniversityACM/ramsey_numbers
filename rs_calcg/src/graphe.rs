@@ -3,6 +3,9 @@ use crate::*;
 /// The maximum number of edges.
 pub const MAX_GRAPHE_SIZE: usize = 64 * 32;
 
+/// A bitstring that represents a graph.  No length.
+pub struct BitString([u64; 32]);
+
 /// A complete graph colored with red and blue edges.
 #[derive(Clone)]
 pub struct GraphE {
@@ -20,6 +23,30 @@ impl GraphE {
             edges,
             colors: [0; 32],
         }
+    }
+
+    /// Create a new Clique from a list of vertices.
+    #[inline(always)]
+    pub fn from(vertices: &[bool]) -> Self {
+        let mut graph = GraphE {
+            edges: vertices.len(),
+            colors: [0; 32],
+        };
+
+        // Build all of the edges.
+        for vertex_a in 0..vertices.len() {
+            if vertices[vertex_a] == false { continue }
+
+            for vertex_b in 0..vertices.len() {
+                if vertices[vertex_b] == false || vertex_a == vertex_b { continue }
+
+                if vertices[vertex_a] && vertices[vertex_b] {
+                    graph.add(vertex_a, vertex_b);
+                }
+            }
+        }
+
+        graph
     }
 
     /// Set the color for an edge to blue (0).
@@ -74,10 +101,18 @@ impl GraphE {
     }
 
     /// Get the relation between two vertices.
+    #[inline(always)]
     pub fn relation(&self, first: usize, second: usize) -> bool {
         let index = (triangle_num(second) + first).min(triangle_num(first) + second);
 
         self.get(index)
+    }
+
+    /// Add an edge between two vertices.
+    pub fn add(&mut self, first: usize, second: usize) {
+        let index = (triangle_num(second) + first).min(triangle_num(first) + second);
+
+        self.set_one(index);
     }
 
     /// Find the next variation of the graph.
@@ -101,11 +136,76 @@ impl GraphE {
         }
     }
 
-    /// Check for cliques of size n.  When using the function, start n at the size of the graph and
-    /// decrease it.
+    /// Get all of the possible cliques of size `n` on a complete graph of this size.
     #[inline(always)]
-    pub fn find_cliques(&self, n: usize) {
+    pub fn find_possible_cliques(&self, n: usize) -> Vec<BitString> {
+        fn next(which_vertices: &mut [bool]) -> bool {
+            // Start at the end of the list of vertices 
+            let mut index = which_vertices.len();
+
+            let mut found_zero = false;
+
+            loop {
+                index -= 1;
+                if which_vertices[index] == false {
+                    found_zero = true;
+                }
+                if found_zero && which_vertices[index] {
+                    which_vertices.swap(index, index + 1);
+                    break false;
+                }
+                if index == 0 { // We have found the last variant.
+                    break true;
+                }
+            }
+        }
+
+        let mut returnv = vec![];
+        let mut current = vec![false; self.n_vertices()];
+
+        for i in 0..n {
+            add(current.as_mut_slice());
+        }
+
+        // at this point current looks something like 111000
+
+        loop {
+            let graph = Self::new(self.n_edges());
+
+            returnv.push(BitString(graph.colors));
+
+            if next(&mut current) {
+                break;
+            }
+        }
+
+        returnv
+    }
+
+    /// Check for cliques of size n.  When using the function, start n at the size of the graph and
+    /// decrease it.  `bitstrings` must be a result from `find_possible_cliques()` with the same
+    /// value for `n`.
+    #[inline(always)]
+    pub fn find_cliques(&self, bitstrings: &Vec<BitString>, n: usize) {
         
+    }
+}
+
+/*fn next(current: &mut [bool]) {
+    let last = current.len() - 1;
+
+    loop {
+        
+    }
+}*/
+
+fn add(current: &mut [bool]) {
+    for i in 0..current.len() {
+        if current[i] {
+            continue;
+        }
+        current[i] = true;
+        break;
     }
 }
 
