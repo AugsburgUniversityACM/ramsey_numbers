@@ -11,7 +11,11 @@ build_pyDist:
 	git clone https://github.com/alekLukanen/pyDist.git
 	@echo "\033[92m-* Running makefile for pyDist\033[0m"
 	make --directory ./pyDist build_env
-	@echo "\033[92m-* Done. Please activate your new python venv."
+	@echo "\033[92m-* Done. Please activate your new python venv.\033[0m"
+
+update_pyDist:
+	@echo "\033[92m-* updating pyDist\033[0m"
+	make --directory ./pyDist update_pyDist
 
 remove_pyDist:
 	@rm -r pyDist
