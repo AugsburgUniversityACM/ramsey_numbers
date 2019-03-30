@@ -15,10 +15,10 @@ pub fn ramsey(r: usize, s: usize) -> usize {
 //        dbg!(edges);
 
         // Build a Graph and The possible rcliques and scliques.
-        graph = GraphE::new(edges);
+        graph = GraphE::from_vertex_count(nvertices);
         rcliques = graph.find_possible_cliques(r);
         scliques = graph.find_possible_cliques(s);
-        assert_eq!(nvertices, graph.n_vertices() + 1);
+        assert_eq!(nvertices, graph.n_vertices());
 
         'colorings: loop {
 //            dbg!((nvertices, run));

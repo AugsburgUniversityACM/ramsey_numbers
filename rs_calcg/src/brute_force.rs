@@ -29,7 +29,7 @@ fn cliques(n_vertices: usize, kgraphrbe: GraphE) -> (usize, usize) {
 pub fn calculate(n_vertices: usize, n_edges: usize) -> (usize, usize) {
     println!("Vertices: {}, Edges: {}", n_vertices, n_edges);
 
-    let mut kgraphrbe = GraphE::new(n_edges);
+    let mut kgraphrbe = GraphE::from_vertex_count(n_vertices);
     let mut minb = std::usize::MAX; // Big Clique
     let mut minr = std::usize::MAX; // Small Clique
 
