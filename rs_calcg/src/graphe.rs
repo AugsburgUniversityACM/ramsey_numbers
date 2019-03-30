@@ -19,6 +19,7 @@ impl GraphE {
     /// Create a new Red/Blue complete graph.
     #[inline(always)]
     pub fn new(edges: usize) -> Self {
+        dbg!(edges);
         GraphE {
             edges,
             colors: [0; 32],
@@ -29,7 +30,7 @@ impl GraphE {
     #[inline(always)]
     pub fn from(vertices: &[bool]) -> Self {
         let mut graph = GraphE {
-            edges: vertices.len(),
+            edges: triangle_num(vertices.len()) /*vertices.len()*/,
             colors: [0; 32],
         };
 
@@ -136,11 +137,16 @@ impl GraphE {
         }
     }
 
-    /// Get all of the possible cliques of size `n` on a complete graph of this size.
+    /// Get all of the possible cliques with `n` vertices on a complete graph of this size.
     #[inline(always)]
     pub fn find_possible_cliques(&self, n: usize) -> Vec<BitString> {
+        // There are not enough vertices in the graph to have a clique of this size.
+        if n > self.n_vertices() {
+            return vec![];
+        }
+
         fn next(which_vertices: &mut [bool]) -> bool {
-            // Start at the end of the list of vertices 
+            // Start at the end of the list of vertices.
             let mut index = which_vertices.len();
 
             let mut found_zero = false;
@@ -186,15 +192,19 @@ impl GraphE {
     /// graph and decrease it.  `bitstrings` must be a result from `find_possible_cliques()` with
     /// the same value for `n`.
     #[inline(always)]
-    pub fn find_cliques(&self, prcs: &Vec<BitString>, pbcs: &Vec<BitString>) -> bool {
+    pub fn find_cliques(&self, prcs: &Vec<BitString>, pbcs: &Vec<BitString>) -> (bool, bool) {
         let gc = self.colors;
+
+        let mut has_red = false;
+        let mut has_blue = false;
 
         // Check for RED Cliques of size r.
         for pc in prcs {
             let c = simd_and(pc.0, gc, self.edges);
             if simd_eq(c, pc.0, self.edges) {
                 // We have a RED Clique of 3 Vertices.
-                return true;
+                has_red = true;
+                break;
             }
         }
 
@@ -202,11 +212,14 @@ impl GraphE {
             let c = simd_and(pc.0, gc, self.edges);
             if simd_is_zero(c, self.edges) {
                 // We have a BLUE Clique of 3 Vertices.
-                return true;
+                has_blue = true;
+                break;
             }
         }
 
-        false
+        dbg!((has_red, has_blue));
+
+        (has_red, has_blue)
     }
 }
 
