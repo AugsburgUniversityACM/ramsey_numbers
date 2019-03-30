@@ -6,6 +6,13 @@ edition = "2018"
 
 [dependencies]
 
+[dev-dependencies]
+criterion = "0.2"
+
 [features]
 default = ["use-simd"]
 use-simd = []
+
+[[bench]]
+name = "ramsey"
+harness = false

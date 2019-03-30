@@ -2,13 +2,26 @@
 Calculations of Ramsey Numbers using parallel computing and SIMD.
 
 ## Running The Rust Code
-In the bash, this runs on a single-processor:
+In the bash, enter the Rust directory:
 
 ```bash
 cd rs_calcg
-cargo run --release
 ```
-to run the unit tests use:
+
+### Run With SIMD Optimizations
+```bash
+cargo run --release --example ramsey
+```
+
+### Run Without SIMD Optimizations
+To run without SIMD, call this:
+
+```bash
+cargo run --release --example ramsey --no-default-features
+```
+
+### Run The Unit Tests
+To run the unit tests use:
 
 ```bash
 cargo test
