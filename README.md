@@ -27,6 +27,23 @@ To run the unit tests use:
 cargo test
 ```
 
+## Benchmarking
+To benchmark the rust code.
+
+### NOSIMD
+This will run the benchmark without SIMD.
+
+```bash
+cargo bench --no-default-features
+```
+
+### SIMD
+This will run the benchmark with SIMD.
+
+```bash
+cargo bench
+```
+
 ## Setting Up Your Python Virtual Environment
 To setup your python virtual environment run the following command
 ```
