@@ -40,6 +40,7 @@ pub fn ramsey(r: usize, s: usize) -> usize {
         }
     }
 }
+
 /*
 /// Calculate a singular Ramsey Number: `R(rs, rs)`.
 pub fn ramsey2(rs: usize) -> usize {
