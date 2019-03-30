@@ -128,6 +128,7 @@ impl GraphE {
     }
 
     /// Add an edge between two vertices.
+    #[inline(always)]
     pub fn add(&mut self, first: usize, second: usize) {
         self.set_one(GraphE::get_index(first, second));
     }
@@ -160,29 +161,6 @@ impl GraphE {
         // There are not enough vertices in the graph to have a clique of this size.
         if n > self.n_vertices() {
             return vec![];
-        }
-
-        fn next(which_vertices: &mut [bool]) -> bool {
-            // Start at the end of the list of vertices.
-            let mut index = which_vertices.len();
-
-            let mut found_zero = false;
-
-            loop {
-                index -= 1;
-                if which_vertices[index] == false {
-                    found_zero = true;
-                }
-                if found_zero && which_vertices[index] {
-                    // Swap 1
-                    which_vertices.swap(index, index + 1);
-                    break false;
-                }
-                if index == 0 {
-                    // We have found the last variant.
-                    break true;
-                }
-            }
         }
 
         dbg!(self.n_vertices());
@@ -273,6 +251,56 @@ fn add(current: &mut [bool]) {
     }
 }
 
+fn next(which_vertices: &mut [bool]) -> bool {
+    // Start at the end of the list of vertices.
+    let mut index = which_vertices.len();
+
+    let mut found_zero = false;
+
+    loop {
+        index -= 1;
+        if which_vertices[index] == false {
+            found_zero = true;
+        }
+        // The one after a zero.
+        if found_zero && which_vertices[index] {
+            // Swap 1 (move the 1 to the right).
+            which_vertices.swap(index, index + 1);
+            // Count 1s after the 1.
+            let mut count_index = index + 1;
+            let mut count = 0;
+            'counter: loop {
+                count_index += 1;
+                if count_index == which_vertices.len() {
+                    break 'counter;
+                }
+                if which_vertices[count_index] {
+                    count += 1;
+                }
+            }
+            // Move all of the 1 to be consecutive after this 1.
+            let mut write_index = index + 1;
+            'writer: loop {
+                write_index += 1;
+                if write_index == which_vertices.len() {
+                    break 'writer;
+                }
+                if count != 0 {
+                    count -= 1;
+                    which_vertices[write_index] = true;
+                } else {
+                    which_vertices[write_index] = false;
+                }
+            }
+            break false;
+        }
+        if index == 0 {
+            // We have found the last variant.
+            break true;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -314,5 +342,25 @@ mod tests {
         assert_eq!(GraphE::get_index(1, 4), 7);
         assert_eq!(GraphE::get_index(2, 4), 8);
         assert_eq!(GraphE::get_index(3, 4), 9);
+    }
+
+    #[test]
+    fn next_check() {
+        let mut which_vertices = [false; 6];
+        let mut count = 0;
+        for i in 0..3 {
+            add(&mut which_vertices);
+        }
+
+        loop {
+            println!("{:?}", which_vertices);
+            count += 1;
+            if next(&mut which_vertices) {
+                break;
+            }
+        }
+
+        // 6 choose 3 = 20
+        assert_eq!(20, count);
     }
 }
