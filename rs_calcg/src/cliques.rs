@@ -10,9 +10,7 @@ impl Clique {
     pub fn new(color: bool, first: usize, second: usize) -> Clique {
         let vertices = vec![first, second];
 
-        Clique {
-            color, vertices
-        }
+        Clique { color, vertices }
     }
 }
 

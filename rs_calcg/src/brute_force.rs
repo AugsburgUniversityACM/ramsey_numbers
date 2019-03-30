@@ -1,6 +1,6 @@
-use crate::GraphE;
 use crate::graphe::MAX_GRAPHE_SIZE;
 use crate::ramsey_cliques_graphe;
+use crate::GraphE;
 
 /*/// Find the 2 biggest cliques in a GraphE.
 fn cliques(n_vertices: usize, kgraphrbe: GraphE) -> (usize, usize) {
@@ -62,7 +62,6 @@ pub fn brute_force() {
         n_vertices += 1;
     }
 }
-
 
 /*/// caseCheck function to check for the following case...
 /// all undirected graphs of order v

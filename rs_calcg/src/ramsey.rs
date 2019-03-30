@@ -12,7 +12,7 @@ pub fn ramsey(r: usize, s: usize) -> usize {
         let edges = (nvertices * (nvertices - 1)) >> 1;
         run = 0;
         dbg!((nvertices, edges));
-//        dbg!(edges);
+        //        dbg!(edges);
 
         // Build a Graph and The possible rcliques and scliques.
         graph = GraphE::from_vertex_count(nvertices);
@@ -21,7 +21,7 @@ pub fn ramsey(r: usize, s: usize) -> usize {
         assert_eq!(nvertices, graph.n_vertices());
 
         'colorings: loop {
-//            dbg!((nvertices, run));
+            dbg!((edges, nvertices, run));
 
             if graph.find_cliques(&rcliques, &scliques) == (false, false) {
                 // We have found a variant of the graph that does not have either r or b clique cs.

@@ -41,10 +41,14 @@ impl GraphE {
 
         // Build all of the edges.
         for vertex_a in 0..vertices.len() {
-            if vertices[vertex_a] == false { continue }
+            if vertices[vertex_a] == false {
+                continue;
+            }
 
             for vertex_b in 0..vertices.len() {
-                if vertices[vertex_b] == false || vertex_a == vertex_b { continue }
+                if vertices[vertex_b] == false || vertex_a == vertex_b {
+                    continue;
+                }
 
                 if vertices[vertex_a] && vertices[vertex_b] {
                     graph.add(vertex_a, vertex_b);
@@ -63,9 +67,9 @@ impl GraphE {
         let i = index / 64;
         let j = index % 64;
 
-//        print!("BFrom {:b}", self.colors[i]);
+        //        print!("BFrom {:b}", self.colors[i]);
         self.colors[i] &= !(1 << j);
-//        println!(" to {:b}", self.colors[i]);
+        //        println!(" to {:b}", self.colors[i]);
     }
 
     /// Set the color for an edge to red (1).
@@ -76,9 +80,9 @@ impl GraphE {
         let i = index / 64;
         let j = index % 64;
 
-//        print!("RFrom {:b}", self.colors[i]);
+        //        print!("RFrom {:b}", self.colors[i]);
         self.colors[i] |= 1 << j;
-//        println!(" to {:b}", self.colors[i]);
+        //        println!(" to {:b}", self.colors[i]);
     }
 
     /// Get the color for an edge.  1 for red, 0 for blue.
@@ -89,7 +93,7 @@ impl GraphE {
         let i = index / 64;
         let j = index % 64;
 
-//        println!("Get {:b}", self.colors[i]);
+        //        println!("Get {:b}", self.colors[i]);
         (self.colors[i] & (1 << j)) != 0
     }
 
@@ -102,8 +106,8 @@ impl GraphE {
     /// Get the number of vertices.
     #[inline(always)]
     pub fn n_vertices(&self) -> usize {
-//        assert!(is_triangular(self.edges));
-//        triangle_root(self.edges)
+        //        assert!(is_triangular(self.edges));
+        //        triangle_root(self.edges)
         self.vertices
     }
 
@@ -135,13 +139,14 @@ impl GraphE {
 
         // Go through all of the edges.
         loop {
+            // Can no longer get or set, so we've hit the last iteration.
+            if digit == self.n_edges() {
+                break true;
+            }
+
             if self.get(digit) {
                 self.set_zero(digit);
                 digit += 1;
-                // Can no longer get or set, so we've hit the last iteration.
-                if digit == self.n_edges() {
-                    break true;
-                }
             } else {
                 self.set_one(digit);
                 break false;
@@ -173,7 +178,8 @@ impl GraphE {
                     which_vertices.swap(index, index + 1);
                     break false;
                 }
-                if index == 0 { // We have found the last variant.
+                if index == 0 {
+                    // We have found the last variant.
                     break true;
                 }
             }
@@ -214,7 +220,12 @@ impl GraphE {
     /// the same value for `n`.
     #[inline(always)]
     pub fn find_cliques(&self, prcs: &Vec<BitString>, pbcs: &Vec<BitString>) -> (bool, bool) {
-        println!("Searching for {} possible red clique(s) and for {} possible blue clique(s)", prcs.len(), pbcs.len());
+        println!(
+            "K{} Searching for {} possible red clique(s) and for {} possible blue clique(s)",
+            self.vertices,
+            prcs.len(),
+            pbcs.len()
+        );
 
         let gc = self.colors;
 
@@ -223,14 +234,14 @@ impl GraphE {
 
         // Check for RED Cliques of size r.
         for pc in prcs {
-//            dbg!((pc.0, gc));
+            //            dbg!((pc.0, gc));
             let c = simd_and(pc.0, gc, self.edges);
-            println!("PC[0]: {:b}", pc.0[0]);
-            println!("GC[0]: {:b}", gc[0]);
-            println!(" C[0]: {:b}", c[0]);
+            //            println!("PC[0]: {:b}", pc.0[0]);
+            //            println!("GC[0]: {:b}", gc[0]);
+            //            println!(" C[0]: {:b}", c[0]);
             if simd_eq(c, pc.0, self.edges) {
                 // We have a RED Clique of 3 Vertices.
-                println!("Found a Red Clique!");
+                //                println!("Found a Red Clique!");
                 has_red = true;
                 break;
             }
@@ -239,14 +250,14 @@ impl GraphE {
         for pc in pbcs {
             let c = simd_and(pc.0, gc, self.edges);
             if simd_is_zero(c, self.edges) {
-                println!("Found a Blue Clique!");
+                //                println!("Found a Blue Clique!");
                 // We have a BLUE Clique of 3 Vertices.
                 has_blue = true;
                 break;
             }
         }
 
-//        dbg!((has_red, has_blue));
+        //        dbg!((has_red, has_blue));
 
         (has_red, has_blue)
     }
@@ -266,7 +277,7 @@ fn add(current: &mut [bool]) {
 mod tests {
     use super::*;
 
-/*    #[test]
+    /*    #[test]
     fn graph_consistency() {
         let mut graphe = GraphE::new(MAX_GRAPHE_SIZE);
         for i in 0..MAX_GRAPHE_SIZE {
