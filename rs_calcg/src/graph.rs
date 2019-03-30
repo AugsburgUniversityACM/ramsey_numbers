@@ -1,14 +1,14 @@
 use crate::*;
 
-/// The maximum number of edges.
-pub const MAX_GRAPHE_SIZE: usize = 64 * 32;
+/// The maximum number of vertices a Graph can have.
+pub const MAX_GRAPH_VERTICES: usize = 64;
 
 /// A bitstring that represents a graph.  No length.
 pub struct BitString([u64; 32]);
 
 /// A complete graph colored with red and blue edges.
 #[derive(Clone)]
-pub struct GraphE {
+pub struct Graph {
     // Number of vertices in the graph.
     vertices: usize,
     // Number of edges in the graph.
@@ -17,11 +17,11 @@ pub struct GraphE {
     colors: [u64; 32],
 }
 
-impl GraphE {
+impl Graph {
     /// Create a new Red/Blue complete graph.
     #[inline(always)]
     pub fn from_vertex_count(vertices: usize) -> Self {
-        GraphE {
+        Graph {
             vertices,
             edges: (vertices * (vertices - 1)) / 2,
             colors: [0; 32],
@@ -33,7 +33,7 @@ impl GraphE {
     pub fn from(vertices: &[bool]) -> Self {
         let vertex_count = vertices.len();
 
-        let mut graph = GraphE {
+        let mut graph = Graph {
             vertices: vertex_count,
             edges: (vertex_count * (vertex_count - 1)) / 2,
             colors: [0; 32],
@@ -113,7 +113,7 @@ impl GraphE {
 
     /// Get the index of an edge from two vertices.
     #[inline(always)]
-    fn get_index(first: usize, second: usize) -> usize {
+    pub fn get_index(first: usize, second: usize) -> usize {
         if first > second {
             triangle_num(first - 1) + second
         } else {
@@ -124,13 +124,13 @@ impl GraphE {
     /// Get the relation between two vertices.
     #[inline(always)]
     pub fn relation(&self, first: usize, second: usize) -> bool {
-        self.get(GraphE::get_index(first, second))
+        self.get(Graph::get_index(first, second))
     }
 
     /// Add an edge between two vertices.
     #[inline(always)]
     pub fn add(&mut self, first: usize, second: usize) {
-        self.set_one(GraphE::get_index(first, second));
+        self.set_one(Graph::get_index(first, second));
     }
 
     /// Find the next variation of the graph.
@@ -168,7 +168,7 @@ impl GraphE {
         let mut returnv = vec![];
         let mut current = vec![false; self.n_vertices()];
 
-        for i in 0..n {
+        for _i in 0..n {
             add(current.as_mut_slice());
         }
 
@@ -241,7 +241,8 @@ impl GraphE {
     }
 }
 
-fn add(current: &mut [bool]) {
+/// Add a vertex to a clique.
+pub fn add(current: &mut [bool]) {
     for i in 0..current.len() {
         if current[i] {
             continue;
@@ -251,7 +252,8 @@ fn add(current: &mut [bool]) {
     }
 }
 
-fn next(which_vertices: &mut [bool]) -> bool {
+/// Calculate the next possible selection of vertices to form a clique.
+pub fn next(which_vertices: &mut [bool]) -> bool {
     // Start at the end of the list of vertices.
     let mut index = which_vertices.len();
 
@@ -301,66 +303,7 @@ fn next(which_vertices: &mut [bool]) -> bool {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /*    #[test]
-    fn graph_consistency() {
-        let mut graphe = GraphE::new(MAX_GRAPHE_SIZE);
-        for i in 0..MAX_GRAPHE_SIZE {
-            dbg!(i);
-
-            assert_eq!(graphe.get(i), false);
-            graphe.set_one(i);
-            assert_eq!(graphe.get(i), true);
-            graphe.set_zero(i);
-            assert_eq!(graphe.get(i), false);
-        }
-    }*/
-
-    #[test]
-    fn graph_index() {
-        assert_eq!(GraphE::get_index(1, 0), 0);
-        assert_eq!(GraphE::get_index(2, 0), 1);
-        assert_eq!(GraphE::get_index(2, 1), 2);
-        assert_eq!(GraphE::get_index(3, 0), 3);
-        assert_eq!(GraphE::get_index(3, 1), 4);
-        assert_eq!(GraphE::get_index(3, 2), 5);
-        assert_eq!(GraphE::get_index(4, 0), 6);
-        assert_eq!(GraphE::get_index(4, 1), 7);
-        assert_eq!(GraphE::get_index(4, 2), 8);
-        assert_eq!(GraphE::get_index(4, 3), 9);
-
-        assert_eq!(GraphE::get_index(0, 1), 0);
-        assert_eq!(GraphE::get_index(0, 2), 1);
-        assert_eq!(GraphE::get_index(1, 2), 2);
-        assert_eq!(GraphE::get_index(0, 3), 3);
-        assert_eq!(GraphE::get_index(1, 3), 4);
-        assert_eq!(GraphE::get_index(2, 3), 5);
-        assert_eq!(GraphE::get_index(0, 4), 6);
-        assert_eq!(GraphE::get_index(1, 4), 7);
-        assert_eq!(GraphE::get_index(2, 4), 8);
-        assert_eq!(GraphE::get_index(3, 4), 9);
-    }
-
-    #[test]
-    fn next_check() {
-        let mut which_vertices = [false; 6];
-        let mut count = 0;
-        for i in 0..3 {
-            add(&mut which_vertices);
-        }
-
-        loop {
-            println!("{:?}", which_vertices);
-            count += 1;
-            if next(&mut which_vertices) {
-                break;
-            }
-        }
-
-        // 6 choose 3 = 20
-        assert_eq!(20, count);
-    }
+/// Get the nth trianglular number.
+pub fn triangle_num(n: usize) -> usize {
+    (n * (n + 1)) / 2
 }

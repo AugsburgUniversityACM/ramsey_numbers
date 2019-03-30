@@ -1,6 +1,6 @@
 use rs_calcg::*;
 
-const R: usize = 2;
+const R: usize = 3;
 const S: usize = 3;
 
 fn main() {

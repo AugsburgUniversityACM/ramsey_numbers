@@ -48,12 +48,14 @@ pub fn simd_is_zero(a: [u64; 32], v: usize) -> bool {
 }
 
 /// & on X86 SIMD
-fn simd_and_x86(a: [u64; 32], b: [u64; 32], v: usize) -> [u64; 32] {
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
+fn simd_and_x86(_a: [u64; 32], _b: [u64; 32], _v: usize) -> [u64; 32] {
     unimplemented!();
 }
 
 /// == on X86 SIMD
-fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
+fn simd_eq_x86(_a: [u64; 32], _b: [u64; 32], _v: usize) -> bool {
     unimplemented!();
 }
 
@@ -92,29 +94,6 @@ fn simd_eq_fallback(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
     }
 
     return true;
-}
-
-fn main() {
-        let mut a = [0xFFFFFFFF_FFFFFFFFu64; 32];
-        let mut b = [0u64; 32];
-
-        a[0] = 0b11100011_11111111_11111111_10000000_11111111_11111111_10001101_11111111u64;
-        a[1] = 0b11110000_11111111_11111111_11111111_11111111_11111111_11111111_11110000u64;
-        b[0] = 0b11100011_11111111_11111111_10000000_11111111_11111111_10001101_11111111u64;
-        b[1] = 0b00001111_11111111_11111111_11111111_11111111_11111111_11111111_11110000u64;
-
-        assert_eq!(simd_eq_fallback(a, b, 84), true);
-
-        a[0] = 0b11100011_11111111_11111111_10000000_11111111_11111111_10001101_11111110u64;
-
-        assert_eq!(simd_eq_fallback(a, b, 84), false);
-        let mut a = [0u64; 32];
-        let mut b = [0u64; 32];
-
-        a[0] = 0b111;
-        b[0] = 0b101;
-
-        assert_eq!(simd_eq_fallback(a, b, 3), false);
 }
 
 #[cfg(test)]
