@@ -6,18 +6,23 @@ pub fn ramsey(r: usize, s: usize) -> usize {
     let mut graph;
     let mut rcliques;
     let mut scliques;
+    let mut run;
 
     'sizes: loop {
         let edges = (nvertices * (nvertices - 1)) >> 1;
-        dbg!(nvertices);
-        dbg!(edges);
+        run = 0;
+        dbg!((nvertices, edges));
+//        dbg!(edges);
 
         // Build a Graph and The possible rcliques and scliques.
         graph = GraphE::new(edges);
         rcliques = graph.find_possible_cliques(r);
         scliques = graph.find_possible_cliques(s);
+        assert_eq!(nvertices, graph.n_vertices() + 1);
 
         'colorings: loop {
+//            dbg!((nvertices, run));
+
             if graph.find_cliques(&rcliques, &scliques) == (false, false) {
                 // We have found a variant of the graph that does not have either r or b clique cs.
                 // So now we have to increase v;
@@ -30,10 +35,12 @@ pub fn ramsey(r: usize, s: usize) -> usize {
                 // We have found the Ramsey number.
                 return nvertices;
             }
+
+            run += 1;
         }
     }
 }
-
+/*
 /// Calculate a singular Ramsey Number: `R(rs, rs)`.
 pub fn ramsey2(rs: usize) -> usize {
     let mut nvertices = rs;
@@ -50,6 +57,8 @@ pub fn ramsey2(rs: usize) -> usize {
         rscliques = graph.find_possible_cliques(rs);
 
         'colorings: loop {
+            dbg!(nvertices);
+
             if graph.find_cliques(&rscliques, &rscliques) == (false, false) {
                 // On this variant of the graph we have either a red or a blue clique correct size.
             } else {
@@ -66,4 +75,4 @@ pub fn ramsey2(rs: usize) -> usize {
             }
         }
     }
-}
+}*/

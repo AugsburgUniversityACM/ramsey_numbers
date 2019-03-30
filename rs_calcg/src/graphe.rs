@@ -19,7 +19,7 @@ impl GraphE {
     /// Create a new Red/Blue complete graph.
     #[inline(always)]
     pub fn new(edges: usize) -> Self {
-        dbg!(edges);
+//        dbg!(edges);
         GraphE {
             edges,
             colors: [0; 32],
@@ -157,6 +157,7 @@ impl GraphE {
                     found_zero = true;
                 }
                 if found_zero && which_vertices[index] {
+                    // Swap 1
                     which_vertices.swap(index, index + 1);
                     break false;
                 }
@@ -175,8 +176,11 @@ impl GraphE {
 
         // at this point current looks something like 111000
 
+        println!("Enter Loop.");
         loop {
-            let graph = Self::new(self.n_edges());
+            dbg!(&current);
+
+            let graph = Self::from(&current);
 
             returnv.push(BitString(graph.colors));
 
@@ -184,6 +188,7 @@ impl GraphE {
                 break;
             }
         }
+        println!("Exit Loop.");
 
         returnv
     }
@@ -200,6 +205,7 @@ impl GraphE {
 
         // Check for RED Cliques of size r.
         for pc in prcs {
+//            dbg!((pc.0, gc));
             let c = simd_and(pc.0, gc, self.edges);
             if simd_eq(c, pc.0, self.edges) {
                 // We have a RED Clique of 3 Vertices.
@@ -217,7 +223,7 @@ impl GraphE {
             }
         }
 
-        dbg!((has_red, has_blue));
+//        dbg!((has_red, has_blue));
 
         (has_red, has_blue)
     }

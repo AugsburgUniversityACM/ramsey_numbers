@@ -17,3 +17,21 @@ pub fn is_triangular(x: usize) -> bool {
 
     x == z
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn triangle_test() {
+        let mut array = [0; 100];
+
+        for i in 0..100 {
+            array[i] = triangle_num(i);
+        }
+
+        for i in 0..100 {
+            assert_eq!(i, triangle_root(array[i]));
+        }
+    }
+}

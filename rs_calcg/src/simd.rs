@@ -70,13 +70,11 @@ fn simd_eq_fallback(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
         // Will be zero when equal.
         let c = a[i] ^ b[i];
 
-        println!("A; {:b}\n B; {:b}\n C; {:b}", a[i], b[i], c);
+//        println!("A; {:b}\n B; {:b}\n C; {:b}", a[i], b[i], c);
 
         if i == integers {
             let one = 0b11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111;
             let trim = one << (64 - bitsleft);
-
-            println!("trim: {:b}, c: {:b} ctrim: {:b}", trim, c, c & trim);
 
             if c & trim != 0 {
                 return false;
