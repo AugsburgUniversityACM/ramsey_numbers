@@ -48,6 +48,8 @@ pub fn simd_and(a: [u64; 32], b: [u64; 32], v: usize) -> [u64; 32] {
 
 /// Check if `a = b` for exactly `v` bits.
 pub fn simd_eq(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
+//    dbg!(a);
+//    dbg!(b);
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     {
         if is_simd_enabled() {
@@ -58,12 +60,12 @@ pub fn simd_eq(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
 }
 
 pub fn simd_is_zero(a: [u64; 32], v: usize) -> bool {
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
+/*    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     {
         if is_simd_enabled() {
             return simd_eq_x86(a, [0; 32], v);
         }
-    }
+    }*/
     simd_eq_fallback(a, [0; 32], v)
 }
 
@@ -85,7 +87,7 @@ fn simd_and_x86(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
         };
         // Write back to a
         unsafe {
-            asm::_mm256_storeu_si256(&mut a[0] as *mut _ as *mut _, e)
+            asm::_mm256_storeu_si256(&mut a[j] as *mut _ as *mut _, e)
         }
     }
 
@@ -108,8 +110,8 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
 
     let integers = v / 256;
     let bitsleft = v % 256;
-    let shiftbyte = bitsleft / 2;
-    let shiftbits = bitsleft % 8;
+    let shiftbyte = bitsleft % 2;
+    let shiftbits = bitsleft / 2;
 
     for i in 0..8 {
         let j = i << 2; // multiply by 4.
@@ -222,11 +224,11 @@ mod tests {
         b[0] = 0b11100011_11111111_11111111_10000000_11111111_11111111_10001101_11111111u64;
         b[1] = 0b00001111_11111111_11111111_11111111_11111111_11111111_11111111_11110000u64;
 
-        assert_eq!(simd_eq(a, b, 84), true);
+        assert_eq!(simd_eq_x86(a, b, 84), true);
 
         a[0] = 0b11100011_11111111_11111111_10000000_11111111_11111111_10001101_11111110u64;
 
-        assert_eq!(simd_eq(a, b, 84), false);
+        assert_eq!(simd_eq_x86(a, b, 84), false);
     }
 
     #[test]
@@ -237,6 +239,60 @@ mod tests {
         a[0] = 0b111;
         b[0] = 0b101;
 
-        assert_eq!(simd_eq(a, b, 3), false);
+        assert_eq!(simd_eq_x86(a, b, 3), false);
+
+        a[0] = 0b101;
+        b[0] = 0b101;
+
+        assert_eq!(simd_eq_x86(a, b, 3), true);
+    }
+
+    #[test]
+    fn check_simd_and() {
+        let mut a = [0u64; 32];
+        let mut b = [0u64; 32];
+
+        a[0] = 0b111;
+        b[0] = 0b101;
+
+        a = simd_and_x86(a, b, 3);
+
+        assert_eq!(a[0], 0b101);
+
+        b[0] = 0b010;
+
+        a = simd_and_x86(a, b, 3);
+
+        assert_eq!(a[0], 0b000);
+    }
+
+    #[test]
+    fn check_simd_and_fallback() {
+        let mut a = [0u64; 32];
+        let mut b = [0u64; 32];
+
+        a[0] = 0b111;
+        b[0] = 0b101;
+
+        a = simd_and_fallback(a, b, 3);
+
+        assert_eq!(a[0], 0b101);
+    }
+
+    #[test]
+    fn check_weird_simd_eq() {
+        let mut a = [0b1011_11000u64; 32];
+        let mut b = [0b1011_11001u64; 32];
+
+        assert!(!simd_eq(a, b, 5));
+    }
+
+    #[test]
+    fn check_simd_zero() {
+        let mut a = [0; 32];
+
+        a[0] = 0b110000;
+
+        assert!(!simd_eq(a, [0;32], 6));
     }
 }
