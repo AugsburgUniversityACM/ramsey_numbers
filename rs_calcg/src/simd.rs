@@ -48,8 +48,6 @@ pub fn simd_and(a: [u64; 32], b: [u64; 32], v: usize) -> [u64; 32] {
 
 /// Check if `a = b` for exactly `v` bits.
 pub fn simd_eq(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
-//    dbg!(a);
-//    dbg!(b);
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     {
         if is_simd_enabled() {
@@ -60,18 +58,13 @@ pub fn simd_eq(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
 }
 
 pub fn simd_is_zero(a: [u64; 32], v: usize) -> bool {
-/*    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
-    {
-        if is_simd_enabled() {
-            return simd_eq_x86(a, [0; 32], v);
-        }
-    }*/
-    simd_eq_fallback(a, [0; 32], v)
+    simd_eq(a, [0; 32], v)
 }
 
 /// & on X86 SIMD
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
 fn simd_and_x86(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
+    let mut rtn = [0; 32];
     for i in 0..8 {
         let j = i << 2; // multiply by 4.
         // Build SIMD types.
@@ -87,11 +80,11 @@ fn simd_and_x86(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
         };
         // Write back to a
         unsafe {
-            asm::_mm256_storeu_si256(&mut a[j] as *mut _ as *mut _, e)
+            asm::_mm256_storeu_si256(&mut rtn[j] as *mut _ as *mut _, e)
         }
     }
 
-    a
+    rtn
 }
 
 /// Fallback & on X86 SIMD
@@ -106,6 +99,8 @@ fn simd_and_fallback(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
 /// == on X86 SIMD
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
 fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
+    println!("A: {} B: {}", a[0], b[0]);
+
     let integers = v / 256;
     let bitsleft = v % 256;
     let shiftbyte = bitsleft / 128;
@@ -133,21 +128,21 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
                 bytes[0] >>= 128 - shiftbits;
                 bytes[1] = 0;
             }
-//            let mask: i256 = unsafe { std::mem::transmute(bytes) };
             let mask = unsafe { asm::_mm256_loadu_si256(&bytes[0] as *const _ as *const _) };
 
-//            dbg!(bytes[0]);
-        let mut z = [0u64; 2];
-        // Write back to a
-        unsafe {
-            asm::_mm256_storeu_si256(&mut z[j] as *mut _ as *mut _, c)
-        }
-//            dbg!(z[0]);
+            let mut z = [0u64; 2];
+            unsafe {
+                asm::_mm256_storeu_si256(&mut z[j] as *mut _ as *mut _, c)
+            }
+            dbg!(bytes[0]);
+            dbg!(z[0]);
 
             // If `c` does not equal zero, return false.
             if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
+                println!("Not Equal");
                 return false;
             } else {
+                println!("Is Equal");
                 return true; // Early Return.
             }
         } else {
@@ -172,8 +167,6 @@ fn simd_eq_fallback(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
     for i in 0..32 {
         // Will be zero when equal.
         let c = a[i] ^ b[i];
-
-        //        println!("A; {:b}\n B; {:b}\n C; {:b}", a[i], b[i], c);
 
         if i == integers {
             let one = 0b11111111_11111111_11111111_11111111_11111111_11111111_11111111_11111111u64;
@@ -224,6 +217,7 @@ mod tests {
         assert_eq!(simd_eq_fallback(a, b, 3), false);
     }
 
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     #[test]
     fn check_simd_eq() {
         let mut a = [0xFFFFFFFF_FFFFFFFFu64; 32];
@@ -241,6 +235,7 @@ mod tests {
         assert_eq!(simd_eq_x86(a, b, 84), false);
     }
 
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     #[test]
     fn check_trivial_simd_eq() {
         let mut a = [0u64; 32];
@@ -257,6 +252,7 @@ mod tests {
         assert_eq!(simd_eq_x86(a, b, 3), true);
     }
 
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     #[test]
     fn check_simd_and() {
         let mut a = [0u64; 32];
@@ -289,14 +285,16 @@ mod tests {
         assert_eq!(a[0], 0b101);
     }
 
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     #[test]
     fn check_weird_simd_eq() {
-        let mut a = [0b1011_11000u64; 32];
-        let mut b = [0b1011_11001u64; 32];
+        let a = [0b1011_11000u64; 32];
+        let b = [0b1011_11001u64; 32];
 
         assert!(!simd_eq_x86(a, b, 5));
     }
 
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
     #[test]
     fn check_simd_zero() {
         let mut a = [0; 32];
