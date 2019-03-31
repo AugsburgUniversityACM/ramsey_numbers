@@ -106,12 +106,10 @@ fn simd_and_fallback(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
 /// == on X86 SIMD
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
 fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
-    let ones = [std::u64::MAX; 32]; // all 1s.
-
     let integers = v / 256;
     let bitsleft = v % 256;
-    let shiftbyte = bitsleft % 2;
-    let shiftbits = bitsleft / 2;
+    let shiftbyte = bitsleft / 128;
+    let shiftbits = bitsleft % 128; // WRONG.
 
     for i in 0..8 {
         let j = i << 2; // multiply by 4.
@@ -135,17 +133,29 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
                 bytes[0] >>= 128 - shiftbits;
                 bytes[1] = 0;
             }
-            let mask: i256 = unsafe { std::mem::transmute(bytes) };
+//            let mask: i256 = unsafe { std::mem::transmute(bytes) };
+            let mask = unsafe { asm::_mm256_loadu_si256(&bytes[0] as *const _ as *const _) };
+
+//            dbg!(bytes[0]);
+        let mut z = [0u64; 2];
+        // Write back to a
+        unsafe {
+            asm::_mm256_storeu_si256(&mut z[j] as *mut _ as *mut _, c)
+        }
+//            dbg!(z[0]);
 
             // If `c` does not equal zero, return false.
-            if unsafe { asm::_mm256_testz_si256(c, *(&mask as *const _ as *const _)) } == 0 {
+            if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
                 return false;
             } else {
                 return true; // Early Return.
             }
         } else {
+            let bytes: [u128; 2] = [std::u128::MAX; 2];
+            let mask = unsafe { asm::_mm256_loadu_si256(&bytes[0] as *const _ as *const _) };
+
             // If `c` does not equal zero, return false.
-            if unsafe { asm::_mm256_testz_si256(c, *(&ones as *const _ as *const _)) } == 0 {
+            if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
                 return false;
             }
         }
@@ -284,7 +294,7 @@ mod tests {
         let mut a = [0b1011_11000u64; 32];
         let mut b = [0b1011_11001u64; 32];
 
-        assert!(!simd_eq(a, b, 5));
+        assert!(!simd_eq_x86(a, b, 5));
     }
 
     #[test]
@@ -293,6 +303,6 @@ mod tests {
 
         a[0] = 0b110000;
 
-        assert!(!simd_eq(a, [0;32], 6));
+        assert!(!simd_eq_x86(a, [0;32], 6));
     }
 }

@@ -163,7 +163,7 @@ impl Graph {
             return vec![];
         }
 
-        dbg!(self.n_vertices());
+//        dbg!(self.n_vertices());
 
         let mut returnv = vec![];
         let mut current = vec![false; self.n_vertices()];
@@ -176,7 +176,7 @@ impl Graph {
 
         println!("Enter Loop.");
         loop {
-            dbg!(&current);
+//            dbg!(&current);
 
             let graph = Self::from(&current);
 
@@ -214,12 +214,12 @@ impl Graph {
         for pc in prcs {
             //            dbg!((pc.0, gc));
             let c = simd_and(pc.0, gc, self.edges);
-            println!("PC[0]: {:8b}", pc.0[0]);
-            println!("GC[0]: {:8b}", gc[0]);
-            println!(" C[0]: {:8b}", c[0]);
+//            println!("PC[0]: {:8b}", pc.0[0]);
+//            println!("GC[0]: {:8b}", gc[0]);
+//            println!(" C[0]: {:8b}", c[0]);
             if simd_eq(c, pc.0, self.edges) {
                 // We have a RED Clique of 3 Vertices.
-                println!("Found a Red Clique!");
+//                println!("Found a Red Clique!");
                 has_red = true;
                 break;
             }
@@ -228,7 +228,7 @@ impl Graph {
         for pc in pbcs {
             let c = simd_and(pc.0, gc, self.edges);
             if simd_is_zero(c, self.edges) {
-                println!("Found a Blue Clique!");
+//                println!("Found a Blue Clique!");
                 // We have a BLUE Clique of 3 Vertices.
                 has_blue = true;
                 break;
