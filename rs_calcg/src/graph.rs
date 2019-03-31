@@ -4,7 +4,7 @@ use crate::*;
 pub const MAX_GRAPH_VERTICES: usize = 64;
 
 /// A bitstring that represents a graph.  No length.
-pub struct BitString([u64; 32]);
+pub struct BitString([i64; 32]);
 
 /// A complete graph colored with red and blue edges.
 #[derive(Clone)]
@@ -14,7 +14,7 @@ pub struct Graph {
     // Number of edges in the graph.
     edges: usize,
     // Bitstring of relations between vertices.
-    colors: [u64; 32],
+    colors: [i64; 32],
 }
 
 impl Graph {
