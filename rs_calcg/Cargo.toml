@@ -5,14 +5,18 @@ authors = ["Jeron Aldaron Lau <jeronaldaron@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+simd = { path = "../simd" }
 
 [dev-dependencies]
 criterion = "0.2"
 
 [features]
-default = ["use-simd"]
+default = ["simd/use-simd"]
 use-simd = []
 
 [[bench]]
 name = "ramsey"
 harness = false
+
+[profile.release]
+opt-level = 2

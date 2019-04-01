@@ -1,7 +1,7 @@
 use rs_calcg::*;
 
 const R: usize = 2;
-const S: usize = 7;
+const S: usize = 8;
 
 fn main() {
     // Print whether or not we have SIMD

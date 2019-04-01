@@ -1,6 +1,6 @@
 use std::arch::x86_64 as asm;
 
-fn is_simd_enabled() -> bool {
+pub fn is_simd_enabled() -> bool {
     is_x86_feature_detected!("avx") && is_x86_feature_detected!("avx2")
         && is_x86_feature_detected!("sse4.1")
 }
@@ -63,8 +63,8 @@ pub fn simd_is_zero(a: [u64; 32], v: usize) -> bool {
 
 /// & on X86 SIMD
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
+#[inline(always)]
 fn simd_and_x86(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
-    let mut rtn = [0; 32];
     for i in 0..8 {
         let j = i << 2; // multiply by 4.
         // Build SIMD types.
@@ -80,14 +80,15 @@ fn simd_and_x86(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
         };
         // Write back to a
         unsafe {
-            asm::_mm256_storeu_si256(&mut rtn[j] as *mut _ as *mut _, e)
+            asm::_mm256_storeu_si256(&mut a[j] as *mut _ as *mut _, e)
         }
     }
 
-    rtn
+    a
 }
 
 /// Fallback & on X86 SIMD
+#[inline(always)]
 fn simd_and_fallback(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
     for i in 0..32 {
         a[i] &= b[i];
@@ -98,14 +99,19 @@ fn simd_and_fallback(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
 
 /// == on X86 SIMD
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
+#[inline(always)]
 fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
-    println!("A: {} B: {}", a[0], b[0]);
+    // Build the Mask from V.
+    let mut mask = [0x0u64; 32];
+    let mask_index = v >> 6;
+    let mask_last = 0xFFFFFFFF_FFFFFFFF >> (64 - (v & 63));
+    for i in 0..mask_index {
+        mask[i] = 0xFFFFFFFF_FFFFFFFF;
+    }
+    mask[mask_index] = mask_last;
 
-    let integers = v / 256;
-    let bitsleft = v % 256;
-    let shiftbyte = bitsleft / 128;
-    let shiftbits = bitsleft % 128; // WRONG.
-
+    // 
+    let integers = v >> 8;
     for i in 0..8 {
         let j = i << 2; // multiply by 4.
         // Build SIMD types.
@@ -120,39 +126,11 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
             asm::_mm256_xor_si256(aa, bb)
         };
 
-        if i == integers {
-            let mut bytes: [u128; 2] = [std::u128::MAX; 2];
-            if shiftbyte == 1 {
-                bytes[1] >>= 128 - shiftbits;
-            } else { // shiftbyte == 0
-                bytes[0] >>= 128 - shiftbits;
-                bytes[1] = 0;
-            }
-            let mask = unsafe { asm::_mm256_loadu_si256(&bytes[0] as *const _ as *const _) };
+        let mask = unsafe { asm::_mm256_loadu_si256(&mask[i * 4] as *const _ as *const _) };
 
-            let mut z = [0u64; 2];
-            unsafe {
-                asm::_mm256_storeu_si256(&mut z[j] as *mut _ as *mut _, c)
-            }
-            dbg!(bytes[0]);
-            dbg!(z[0]);
-
-            // If `c` does not equal zero, return false.
-            if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
-                println!("Not Equal");
-                return false;
-            } else {
-                println!("Is Equal");
-                return true; // Early Return.
-            }
-        } else {
-            let bytes: [u128; 2] = [std::u128::MAX; 2];
-            let mask = unsafe { asm::_mm256_loadu_si256(&bytes[0] as *const _ as *const _) };
-
-            // If `c` does not equal zero, return false.
-            if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
-                return false;
-            }
+        // If `c` does not equal zero, return false.
+        if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
+            return false;
         }
     }
 
@@ -160,6 +138,7 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
 }
 
 /// Fallback == on X86 SIMD
+#[inline(always)]
 fn simd_eq_fallback(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
     let integers = v / 64;
     let bitsleft = v % 64;

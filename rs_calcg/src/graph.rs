@@ -174,13 +174,13 @@ impl Graph {
 
         // at this point current looks something like 111000
 
-        println!("Enter Loop.");
+        // println!("Enter Loop.");
         loop {
-//            dbg!(&current);
+            // dbg!(&current);
 
             let graph = Self::from(&current);
 
-            println!("OGC {:b}", graph.colors[0]);
+            // println!("OGC {:b}", graph.colors[0]);
 
             returnv.push(BitString(graph.colors));
 
@@ -188,7 +188,7 @@ impl Graph {
                 break;
             }
         }
-        println!("Exit Loop.");
+        // println!("Exit Loop.");
 
         returnv
     }
@@ -212,14 +212,10 @@ impl Graph {
 
         // Check for RED Cliques of size r.
         for pc in prcs {
-            //            dbg!((pc.0, gc));
             let c = simd_and(pc.0, gc, self.edges);
-            println!("PC[0]: {:8b}", pc.0[0]);
-            println!("GC[0]: {:8b}", gc[0]);
-            println!(" C[0]: {:8b}", c[0]);
             if simd_eq(c, pc.0, self.edges) {
                 // We have a RED Clique of 3 Vertices.
-                println!("Found a Red Clique!");
+                //println!("Found a Red Clique!");
                 has_red = true;
                 break;
             }
@@ -228,7 +224,7 @@ impl Graph {
         for pc in pbcs {
             let c = simd_and(pc.0, gc, self.edges);
             if simd_is_zero(c, self.edges) {
-                println!("Found a Blue Clique!");
+                //println!("Found a Blue Clique!");
                 // We have a BLUE Clique of 3 Vertices.
                 has_blue = true;
                 break;

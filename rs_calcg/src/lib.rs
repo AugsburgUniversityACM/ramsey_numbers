@@ -5,7 +5,6 @@
 
 mod graph;
 mod ramsey;
-mod simd;
 
 pub use graph::{add, next, Graph, MAX_GRAPH_VERTICES};
 pub use ramsey::ramsey;
