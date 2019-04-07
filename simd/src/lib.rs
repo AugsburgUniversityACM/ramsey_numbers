@@ -8,16 +8,6 @@ pub fn is_simd_enabled() -> bool {
 // A type that is four 64 bit integers packed together (256 bits).
 pub use asm::__m256i as i256;
 
-/// Returns zero.
-#[inline(always)]
-pub fn i256_zero() -> i256 {
-    use asm::_mm256_setzero_si256;
-
-    unsafe {
-        _mm256_setzero_si256()
-    }
-}
-
 /// Print whether or not SIMD is enabled.
 pub fn print_enabled() {
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
@@ -64,27 +54,26 @@ pub fn simd_is_zero(a: [u64; 32], v: usize) -> bool {
 /// & on X86 SIMD
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), feature = "use-simd"))]
 #[inline(always)]
-fn simd_and_x86(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
-    for i in 0..8 {
-        let j = i << 2; // multiply by 4.
-        // Build SIMD types.
-        let c = unsafe {
-            asm::_mm256_loadu_si256(&a[j] as *const _ as *const _)
-        };
-        let d = unsafe {
-            asm::_mm256_loadu_si256(&b[j] as *const _ as *const _)
-        };
-        // And The Values together.
-        let e = unsafe {
-            asm::_mm256_and_si256(c, d)
-        };
-        // Write back to a
-        unsafe {
+fn simd_and_x86(a: [u64; 32], b: [u64; 32], v: usize) -> [u64; 32] {
+    #[target_feature(enable = "avx,avx2,sse4.1")]
+    unsafe fn internal(mut a: [u64; 32], b: [u64; 32], _v: usize) -> [u64; 32] {
+        for i in 0..8 {
+            let j = i << 2; // multiply by 4.
+            // Build SIMD types.
+            let c = asm::_mm256_loadu_si256(&a[j] as *const _ as *const _);
+            let d = asm::_mm256_loadu_si256(&b[j] as *const _ as *const _);
+            // And The Values together.
+            let e = asm::_mm256_and_si256(c, d);
+            // Write back to a
             asm::_mm256_storeu_si256(&mut a[j] as *mut _ as *mut _, e)
         }
+
+        a
     }
 
-    a
+    unsafe {
+        internal(a, b, v)
+    }
 }
 
 /// Fallback & on X86 SIMD
@@ -110,30 +99,30 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
     }
     mask[mask_index] = mask_last;
 
-    // 
-    for i in 0..8 {
-        let j = i << 2; // multiply by 4.
-        // Build SIMD types.
-        let aa = unsafe {
-            asm::_mm256_loadu_si256(&a[j] as *const _ as *const _)
-        };
-        let bb = unsafe {
-            asm::_mm256_loadu_si256(&b[j] as *const _ as *const _)
-        };
-        // Will be zero when equal.
-        let c = unsafe {
-            asm::_mm256_xor_si256(aa, bb)
-        };
+    #[target_feature(enable = "avx,avx2,sse4.1")]
+    unsafe fn internal(a: [u64; 32], b: [u64; 32], mask: [u64; 32]) -> bool {
+        for i in 0..8 {
+            let j = i << 2; // multiply by 4.
+            // Build SIMD types.
+            let aa = asm::_mm256_loadu_si256(&a[j] as *const _ as *const _);
+            let bb = asm::_mm256_loadu_si256(&b[j] as *const _ as *const _);
+            // Will be zero when equal.
+            let c = asm::_mm256_xor_si256(aa, bb);
 
-        let mask = unsafe { asm::_mm256_loadu_si256(&mask[i * 4] as *const _ as *const _) };
+            let mask = asm::_mm256_loadu_si256(&mask[i * 4] as *const _ as *const _);
 
-        // If `c` does not equal zero, return false.
-        if unsafe { asm::_mm256_testz_si256(c, mask) } == 0 {
-            return false;
+            // If `c` does not equal zero, return false.
+            if asm::_mm256_testz_si256(c, mask) == 0 {
+                return false;
+            }
         }
+
+        return true;
     }
 
-    return true;
+    unsafe {
+        internal(a, b, mask)
+    }
 }
 
 /// Fallback == on X86 SIMD

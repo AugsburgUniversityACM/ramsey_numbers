@@ -6,8 +6,8 @@
 mod graph;
 mod ramsey;
 
-use rayon::prelude::*;
+// use rayon::prelude::*;
 
 pub use graph::{add, next, Graph, MAX_GRAPH_VERTICES};
 pub use ramsey::ramsey;
-pub use simd::{print_enabled, simd_and, simd_eq, simd_is_zero, i256, i256_zero};
+pub use simd::{print_enabled, simd_and, simd_eq, simd_is_zero, i256};

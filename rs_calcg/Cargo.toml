@@ -18,6 +18,3 @@ use-simd = []
 [[bench]]
 name = "ramsey"
 harness = false
-
-[profile.release]
-opt-level = 2
