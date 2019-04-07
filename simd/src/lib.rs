@@ -111,7 +111,6 @@ fn simd_eq_x86(a: [u64; 32], b: [u64; 32], v: usize) -> bool {
     mask[mask_index] = mask_last;
 
     // 
-    let integers = v >> 8;
     for i in 0..8 {
         let j = i << 2; // multiply by 4.
         // Build SIMD types.

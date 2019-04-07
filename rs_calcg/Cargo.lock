@@ -298,6 +298,7 @@ name = "rs_calcg"
 version = "0.1.0"
 dependencies = [
  "criterion 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rayon 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "simd 0.1.0",
 ]
 

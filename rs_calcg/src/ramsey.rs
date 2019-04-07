@@ -26,7 +26,7 @@ pub fn ramsey(r: usize, s: usize) -> usize {
                 // So now we have to increase v;
                 nvertices += 1;
 
-                continue 'sizes;
+                break 'colorings;
             }
             if graph.increment() {
                 // At this point we have failed to find a graph that doesn't satisfy the properties.

@@ -198,12 +198,12 @@ impl Graph {
     /// the same value for `n`.
     #[inline(always)]
     pub fn find_cliques(&self, prcs: &Vec<BitString>, pbcs: &Vec<BitString>) -> (bool, bool) {
-        println!(
+/*        println!(
             "K{} Searching for {} possible red clique(s) and for {} possible blue clique(s)",
             self.vertices,
             prcs.len(),
             pbcs.len()
-        );
+        );*/
 
         let gc = self.colors;
 
