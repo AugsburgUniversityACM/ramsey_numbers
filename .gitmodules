@@ -1,0 +1,3 @@
+[submodule "gt_algorithms"]
+	path = gt_algorithms
+	url = git@github.com:JeronAldaron/gt_algorithms.git
